@@ -1,4 +1,6 @@
 #include "tgaimage.h"
+#include "object.h"
+
 
 const TGAColor white = TGAColor(255, 255, 255, 255);
 const TGAColor red   = TGAColor(255, 0,   0,   255);
@@ -48,6 +50,9 @@ int main(int argc, char** argv) {
     
     //Save image
 	image.write_tga_file("output.tga");
+    
+    Object object("./ressources/african_head.obj");
+    
 	return 0;
 }
 
