@@ -4,13 +4,17 @@
 
 class Point {
 protected:
-    int x, y;
+    float x, y;
     
 public:
     
     Point();
     
-	Point(int x, int y);
+	Point(float x, float y);
+    
+	float get_x();
+	
+    float get_y();
     
 };
 

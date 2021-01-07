@@ -15,6 +15,8 @@ public:
     
 	Object(const char *filename);
     
+    void print( TGAImage &img,  const TGAColor &c);
+    
 };
 
 #endif //__OBJECT_H__

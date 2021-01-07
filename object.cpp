@@ -5,6 +5,7 @@
 #include <time.h>
 #include <math.h>
 #include <vector>
+#include "tgaimage.h"
 #include "object.h"
 
 Object::Object(){}
@@ -32,5 +33,12 @@ Object::Object(const char *filename) : path(filename){
         }
         
         in.close();
+    }
+}
+
+void Object::print( TGAImage &img, const TGAColor &c){
+    for(Point p : points){
+        
+            img.set(500+500*p.get_x(),500-p.get_y()*500,c); 
     }
 }

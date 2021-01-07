@@ -38,7 +38,7 @@ void line(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color){
 }
 
 int main(int argc, char** argv) {
-	TGAImage image(100, 100, TGAImage::RGB);
+	TGAImage image(1000, 1000, TGAImage::RGB);
     
 	image.flip_vertically(); // Origin at the left bottom corner
     
@@ -51,7 +51,14 @@ int main(int argc, char** argv) {
     //Save image
 	image.write_tga_file("output.tga");
     
+    image.clear();
+    
     Object object("./ressources/african_head.obj");
+    object.print(image,white);
+    
+    //Save image
+	image.write_tga_file("output_point.tga");
+    
     
 	return 0;
 }
