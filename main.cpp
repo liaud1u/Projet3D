@@ -1,6 +1,6 @@
 #include "tgaimage.h"
 #include "object.h"
-
+#include <iostream>
 
 const TGAColor white = TGAColor(255, 255, 255, 255);
 const TGAColor red   = TGAColor(255, 0,   0,   255);
@@ -37,8 +37,22 @@ void line(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color){
     }
 }
 
+
+void printLine(Object &obj, TGAImage &img, const TGAColor &c){
+    
+    std::vector<Point> points = obj.get_points();
+    std::vector<std::vector<int>> faces = obj.get_faces();
+    
+    for(std::vector<int> triangle : faces){
+        for(int cpt = 0; cpt<3; cpt++){
+            line((int)(SIZE/2+SIZE/2*points.at(triangle[cpt]).get_x()),(int)(SIZE/2+SIZE/2*-points.at(triangle[cpt]).get_y()),(int)(SIZE/2+SIZE/2*points.at(triangle[(cpt+1)%3]).get_x()),(int)(SIZE/2+SIZE/2*-points.at(triangle[(cpt+1)%3]).get_y()), img, c);
+        }
+    } 
+}
+
+
 int main(int argc, char** argv) {
-	TGAImage image(1000, 1000, TGAImage::RGB);
+	TGAImage image(SIZE, SIZE, TGAImage::RGB);
     
 	image.flip_vertically(); // Origin at the left bottom corner
     
@@ -54,12 +68,21 @@ int main(int argc, char** argv) {
     image.clear();
     
     Object object("./ressources/african_head.obj");
-    object.print(image,white);
+    object.printPoint(image,white);
     
     //Save image
 	image.write_tga_file("output_point.tga");
     
     
+    image.clear();
+     
+    printLine(object,image,white);
+    
+    //Save image
+	image.write_tga_file("output_line.tga");
+    
+    
 	return 0;
 }
+
 

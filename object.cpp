@@ -30,15 +30,43 @@ Object::Object(const char *filename) : path(filename){
                 Point p(std::stof(x),std::stof(y));
                 points.push_back(p);
             }
+            if(line[0]=='f' && line[1]==' '){ 
+                std::istringstream splited_string(line.c_str());
+                std::string to_delete, face;
+                splited_string>> to_delete >> face;
+                
+                
+                std::vector<int> triangle; 
+                
+                for(int c = 0; c<3; c++){ 
+                
+                    std::istringstream points(face.c_str());                
+                    std::string token;
+                    
+                
+                    std::getline(points, token, '/') ;
+                    
+                    triangle.push_back(std::stoi(token)-1);
+                
+                
+                    splited_string >> face;
+                    
+                }
+                
+                    faces.push_back(triangle);
+            }
         }
         
         in.close();
     }
 }
 
-void Object::print( TGAImage &img, const TGAColor &c){
+void Object::printPoint( TGAImage &img, const TGAColor &c){
     for(Point p : points){
         
-            img.set(500+500*p.get_x(),500-p.get_y()*500,c); 
+            img.set(SIZE/2+SIZE/2*p.get_x(),SIZE/2-p.get_y()*SIZE/2,c); 
     }
 }
+
+
+

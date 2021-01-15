@@ -4,10 +4,15 @@
 #include <vector>
 #include "point.h"
 
+
+#define SIZE 500
+
+
 class Object {
 protected:
     const char* path;
     std::vector<Point> points;
+    std::vector<std::vector<int>> faces;
     
 public:
     
@@ -15,7 +20,11 @@ public:
     
 	Object(const char *filename);
     
-    void print( TGAImage &img,  const TGAColor &c);
+    void printPoint( TGAImage &img,  const TGAColor &c);
+
+    std::vector<std::vector<int>> get_faces(){return faces;}
+    
+    std::vector<Point> get_points(){return points;}
     
 };
 
