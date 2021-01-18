@@ -2,6 +2,10 @@
 #include "object.h"
 #include <iostream>
 
+
+#define SIZE 500
+
+
 const TGAColor white = TGAColor(255, 255, 255, 255);
 const TGAColor red   = TGAColor(255, 0,   0,   255);
 const TGAColor green   = TGAColor(0, 255,   0,   255);
@@ -51,6 +55,13 @@ void printLine(Object &obj, TGAImage &img, const TGAColor &c){
 }
 
 
+void printPoint(Object &obj, TGAImage &img, const TGAColor &c){
+    for(Point p : obj.get_points()){
+        img.set(SIZE/2+SIZE/2*p.get_x(),SIZE/2-p.get_y()*SIZE/2,c); 
+    }
+}
+
+
 int main(int argc, char** argv) {
 	TGAImage image(SIZE, SIZE, TGAImage::RGB);
     
@@ -68,7 +79,7 @@ int main(int argc, char** argv) {
     image.clear();
     
     Object object("./ressources/african_head.obj");
-    object.printPoint(image,white);
+    printPoint(object,image,white);
     
     //Save image
 	image.write_tga_file("output_point.tga");

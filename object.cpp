@@ -61,12 +61,5 @@ Object::Object(const char *filename) : path(filename){
     }
 }
 
-void Object::printPoint( TGAImage &img, const TGAColor &c){
-    for(Point p : points){
-        
-            img.set(SIZE/2+SIZE/2*p.get_x(),SIZE/2-p.get_y()*SIZE/2,c); 
-    }
-}
-
 
 

@@ -5,8 +5,6 @@
 #include "point.h"
 
 
-#define SIZE 500
-
 
 class Object {
 protected:
@@ -19,8 +17,6 @@ public:
     Object();
     
 	Object(const char *filename);
-    
-    void printPoint( TGAImage &img,  const TGAColor &c);
 
     std::vector<std::vector<int>> get_faces(){return faces;}
     
