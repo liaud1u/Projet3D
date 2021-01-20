@@ -3,8 +3,7 @@
 #include <iostream>
 
 
-#define SIZE 500
-
+#define SIZE 2000
 
 const TGAColor white = TGAColor(255, 255, 255, 255);
 const TGAColor red   = TGAColor(255, 0,   0,   255);
@@ -41,6 +40,19 @@ void line(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color){
     }
 }
 
+void line(Point p0, Point p1, TGAImage &image, TGAColor color){
+line(p0.get_x(), p0.get_y(), p1.get_x(), p1.get_y(), image, color);
+}
+
+
+void printPoint(Object &obj, TGAImage &img, const TGAColor &c){
+    for(Point p : obj.get_points()){
+        img.set(SIZE/2+SIZE/2*p.get_x(),SIZE/2-p.get_y()*SIZE/2,c); 
+    }
+}
+
+
+
 
 void printLine(Object &obj, TGAImage &img, const TGAColor &c){
     
@@ -55,30 +67,83 @@ void printLine(Object &obj, TGAImage &img, const TGAColor &c){
 }
 
 
-void printPoint(Object &obj, TGAImage &img, const TGAColor &c){
-    for(Point p : obj.get_points()){
-        img.set(SIZE/2+SIZE/2*p.get_x(),SIZE/2-p.get_y()*SIZE/2,c); 
-    }
+void traceTriangle(std::vector<Point> points_tri, TGAImage &img, const TGAColor &c){
+     //Tri des points par y
+        if(points_tri[0].get_y()> points_tri[1].get_y())std::swap(points_tri[0],points_tri[1]);
+        if(points_tri[0].get_y()> points_tri[2].get_y())std::swap(points_tri[0],points_tri[2]);
+        if(points_tri[1].get_y()> points_tri[2].get_y())std::swap(points_tri[1],points_tri[2]);
+        
+        
+        float hauteur = points_tri[2].get_y() - points_tri[0].get_y();
+         
+        
+        //Remplissage de la partie haute du triangle (de tri[0].get_y() à tri[1].get_y())
+        for(int i = points_tri[0].get_y(); i <= points_tri[1].get_y(); i++){
+            float hauteur_sspartie=points_tri[1].get_y() - points_tri[0].get_y()+1;
+            
+            float alpha = (float)((float)i-points_tri[0].get_y())/hauteur;              
+            float beta = (float)((float)i-points_tri[0].get_y())/hauteur_sspartie;
+              
+            Point p1(points_tri[0].get_x()+(points_tri[2].get_x()-points_tri[0].get_x())*alpha,i);
+            Point p2(points_tri[0].get_x()+(points_tri[1].get_x()-points_tri[0].get_x())*beta,i);
+             
+            
+            if(p1.get_x()>p2.get_x())
+                std::swap(p1,p2);
+              
+            line(p1,p2,img,c);
+        }
+        
+        
+        //Remplissage de la partie basse du triangle (de tri[2].get_y() à tri[1].get_y())
+        for(int i = points_tri[1].get_y(); i <= points_tri[2].get_y(); i++){
+            float hauteur_sspartie=points_tri[2].get_y() - points_tri[1].get_y()+1;
+            
+            float alpha = (float)((float)i-points_tri[0].get_y())/hauteur;              
+            float beta = (float)((float)i-points_tri[1].get_y())/hauteur_sspartie;
+              
+            Point p1(points_tri[0].get_x()+(points_tri[2].get_x()-points_tri[0].get_x())*alpha,i);
+            Point p2(points_tri[1].get_x()+(points_tri[2].get_x()-points_tri[1].get_x())*beta,i);
+             
+            
+            if(p1.get_x()>p2.get_x())
+                std::swap(p1,p2);
+              
+            line(p1,p2,img,c);
+        }
 }
 
+void printTriangle(Object &obj, TGAImage &img){
+    
+    std::vector<Point> points = obj.get_points();
+    std::vector<std::vector<int>> faces = obj.get_faces();
+    
+ 
+    
+    for(std::vector<int> triangle : faces){
+        TGAColor c(std::rand()%255,std::rand()%255,std::rand()%255,255);
+        
+        std::vector<Point> points_tri;
+        
+        for(int i : triangle){
+            Point p(SIZE/2+SIZE/2*points.at(i).get_x(),SIZE/2+SIZE/2*-points.at(i).get_y());
+            points_tri.push_back(p);
+        }
+        
+       traceTriangle(points_tri,img,c);
+        
+    } 
+}
 
 int main(int argc, char** argv) {
 	TGAImage image(SIZE, SIZE, TGAImage::RGB);
     
 	image.flip_vertically(); // Origin at the left bottom corner
+           
+    //Object object("./ressources/african_head/african_head.obj");
+    Object object("./ressources/diablo3_pose/diablo3_pose.obj");
+    //Object object("./ressources/boggie/body.obj");
     
-    //Test for line in each direction
-    line(50,50,75,75,image,white);
-    line(50,50,25,25,image,red);
-    line(50,50,75,25,image,green);
-    line(50,50,25,75,image,blue);
-    
-    //Save image
-	image.write_tga_file("output.tga");
-    
-    image.clear();
-    
-    Object object("./ressources/african_head.obj");
     printPoint(object,image,white);
     
     //Save image
@@ -91,6 +156,13 @@ int main(int argc, char** argv) {
     
     //Save image
 	image.write_tga_file("output_line.tga");
+    
+    
+    image.clear();
+    printTriangle(object,image);
+     
+    //Save image
+	image.write_tga_file("output_triangle.tga");
     
     
 	return 0;
