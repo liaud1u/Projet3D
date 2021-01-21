@@ -23,6 +23,10 @@ public:
     void set_y(float y){this->y=y;}
     
     void set_z(float z){this->z=z;}
+    
+    Point3d cross(Point3d p1);
+    
+    void normalize();
 };
 
 #endif //__POINT_H__

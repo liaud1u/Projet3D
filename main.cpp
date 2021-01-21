@@ -66,7 +66,7 @@ Point3d barycentric(std::vector<Point2d> &pts, Point2d P){
     Point3d p1(pts[2].get_x()-pts[0].get_x(), pts[1].get_x()-pts[0].get_x(),pts[0].get_x()-P.get_x());
     Point3d p2(pts[2].get_y()-pts[0].get_y(), pts[1].get_y()-pts[0].get_y(),pts[0].get_y()-P.get_y());
     
-    Point3d u(p1.get_y()*p2.get_z()-p1.get_z()*p2.get_y(),p1.get_z()*p2.get_x()-p1.get_x()*p2.get_z(),p1.get_x()*p2.get_y()-p1.get_y()*p2.get_x());
+    Point3d u = p1.cross(p2);
     
     //if(std::abs(u.get_z()<1)) return Point3d(1,1,1);
     
@@ -173,6 +173,9 @@ void printTriangle(Object &obj, TGAImage &img, bool line){
             Point2d p(SIZE/2+SIZE/2*points.at(i).get_x(),SIZE/2+SIZE/2*-points.at(i).get_y());
             points_tri.push_back(p);
         }
+        
+         
+        
         
        traceTriangle(points_tri,img,c,line);
         
