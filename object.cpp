@@ -25,9 +25,9 @@ Object::Object(const char *filename) : path(filename){
         while(std::getline(in,line)){
             if(line[0]=='v' && line[1]==' '){ 
                 std::istringstream splited_string(line.c_str());
-                std::string to_delete,x,y;
-                splited_string>> to_delete >> x >> y;
-                Point2d p(std::stof(x),std::stof(y));
+                std::string to_delete,x,y,z;
+                splited_string>> to_delete >> x >> y >> z;
+                Point3d p(std::stof(x),std::stof(y),std::stof(z));
                 points.push_back(p);
             }
             if(line[0]=='f' && line[1]==' '){ 

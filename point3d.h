@@ -26,7 +26,15 @@ public:
     
     Point3d cross(Point3d p1);
     
+    Point3d minus(Point3d p1);
+    
+    void product(float value);
+    
+    float dotproduct(Point3d p1);
+    
     void normalize();
+    
+    float norm();
 };
 
 #endif //__POINT_H__
