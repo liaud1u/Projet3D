@@ -2,14 +2,15 @@
 #define __OBJECT_H__
 
 #include <vector>
-#include "point.h"
+#include "point2d.h"
+#include "point3d.h"
 
 
 
 class Object {
 protected:
     const char* path;
-    std::vector<Point> points;
+    std::vector<Point2d> points;
     std::vector<std::vector<int>> faces;
     
 public:
@@ -20,7 +21,7 @@ public:
 
     std::vector<std::vector<int>> get_faces(){return faces;}
     
-    std::vector<Point> get_points(){return points;}
+    std::vector<Point2d> get_points(){return points;}
     
 };
 

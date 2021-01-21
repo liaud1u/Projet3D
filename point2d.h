@@ -1,16 +1,16 @@
-#ifndef __POINT_H__
-#define __POINT_H__
+#ifndef __POINT2D_H__
+#define __POINT2D_H__
 
 
-class Point {
+class Point2d {
 protected:
     float x, y;
     
 public:
     
-    Point();
+    Point2d();
     
-	Point(float x, float y);
+	Point2d(float x, float y);
     
 	float get_x();
 	
