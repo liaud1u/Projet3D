@@ -73,8 +73,7 @@ Point3d barycentric(std::vector<Point3d> &pts, Point2d P){
     //if(std::abs(u.get_z()<1)) return Point3d(1,1,1);
     
     return Point3d(1.f-(u.get_x()+u.get_y())/u.get_z(), u.get_y()/u.get_z(), u.get_x()/u.get_z());
-}
-
+} 
 
 void printLine(Object &obj, TGAImage &img, const TGAColor &c){
     
@@ -89,17 +88,19 @@ void printLine(Object &obj, TGAImage &img, const TGAColor &c){
 }
 
 
-void traceTriangle(std::vector<Point3d> points_tri, TGAImage &img, const TGAColor &c,   int * zbuffer[]){
+void traceTriangle(std::vector<Point3d> points_tri, std::vector<Point2d> points_text,TGAImage &img, float light_intensity,   int * zbuffer[], Object &obj){
         //Tri des points par y
         if(points_tri[0].get_y()> points_tri[1].get_y())std::swap(points_tri[0],points_tri[1]);
         if(points_tri[0].get_y()> points_tri[2].get_y())std::swap(points_tri[0],points_tri[2]);
-        if(points_tri[1].get_y()> points_tri[2].get_y())std::swap(points_tri[1],points_tri[2]);
-         
+        if(points_tri[1].get_y()> points_tri[2].get_y())std::swap(points_tri[1],points_tri[2]); 
+        
+        
+        
         //Barycentic Method
         Point2d boxmin(img.get_width()-1, img.get_height()-1);
         Point2d boxmax(0,0);
         Point2d clamp(img.get_width()-1,img.get_height()-1);
-           
+        
         for(int i =0; i<3; i++){ 
             boxmin.set_x(max(0,min(boxmin.get_x(),points_tri[i].get_x())));
             boxmin.set_y(max(0,min(boxmin.get_y(),points_tri[i].get_y())));
@@ -119,8 +120,25 @@ void traceTriangle(std::vector<Point3d> points_tri, TGAImage &img, const TGAColo
                 pz=points_tri[2].get_z()*bc_screen.get_z();
                 
                 if(zbuffer[px][py]<pz){
+                    TGAColor color; 
+                    
+                    float pu = 0, pv =0;
+                        
+                    pu=points_text[0].get_x()*bc_screen.get_x();
+                    pu+=points_text[1].get_x()*bc_screen.get_y();
+                    pu+=points_text[2].get_x()*bc_screen.get_z();
+                    
+                    
+                    pv=points_text[0].get_y()*bc_screen.get_x();
+                    pv+=points_text[1].get_y()*bc_screen.get_y();
+                    pv+=points_text[2].get_y()*bc_screen.get_z();
+                     
+                    
+                    
+                    color= obj.get_color(Point2d(pu,pv),light_intensity);
+                    
                     zbuffer[px][py] = pz;
-                    img.set(px,py,c);
+                    img.set(px,py,color);
                 }
             }
         }
@@ -130,8 +148,10 @@ void traceTriangle(std::vector<Point3d> points_tri, TGAImage &img, const TGAColo
 void printTriangle(Object &obj, TGAImage &img, bool shading){
     
     std::vector<Point3d> points = obj.get_points();
+    std::vector<Point2d> all_points_text = obj.get_textures();
     std::vector<std::vector<int>> faces = obj.get_faces();
-    
+    std::vector<std::vector<int>> faces_text = obj.get_texture_faces();
+     
     int ** zbuffer = new int*[SIZE];
  
     for(int i = 0; i<SIZE; i++){
@@ -141,10 +161,11 @@ void printTriangle(Object &obj, TGAImage &img, bool shading){
         }
     }
     
+    int fcpt = 0;
     
     for(std::vector<int> triangle : faces){ 
-        
         std::vector<Point3d> points_tri;
+        std::vector<Point2d> points_text;
         std::vector<Point3d> points_screen;
         
         for(int i : triangle){
@@ -154,7 +175,17 @@ void printTriangle(Object &obj, TGAImage &img, bool shading){
             
             Point3d p3d(points.at(i).get_x(),points.at(i).get_y(),points.at(i).get_z());
             points_screen.push_back(p3d);
+             
+             
         }
+        
+        
+        for(int i : faces_text.at(fcpt)){
+            points_text.push_back(all_points_text.at(i));
+        }
+        
+        fcpt++;
+        
         
          
          //Shading
@@ -167,15 +198,13 @@ void printTriangle(Object &obj, TGAImage &img, bool shading){
          float light_intensity = -light.dotproduct(normal);
           
          if(light_intensity>0 && shading){
-        
-            TGAColor c((int)(light_intensity*255),(int)(light_intensity*255),(int)(light_intensity*255),255);
-            traceTriangle(points_tri,img,c,zbuffer);
+         
+            traceTriangle(points_tri,points_text,img,light_intensity,zbuffer,obj);
         }
          
          if(!shading){
-            
-            TGAColor c(std::rand()%255,std::rand()%255,std::rand()%255,255);
-            traceTriangle(points_tri,img,c,zbuffer);
+             
+            traceTriangle(points_tri,points_text,img,light_intensity,zbuffer,obj);
          }
          
          
@@ -231,9 +260,9 @@ int main(int argc, char** argv) {
     
 	image.flip_vertically(); // Origin at the left bottom corner
            
-    Object object("./ressources/african_head/african_head.obj");
-    //Object object("./ressources/diablo3_pose/diablo3_pose.obj");
-    //Object object("./ressources/boggie/body.obj");
+    Object object("./ressources/african_head/african_head.obj","./ressources/african_head/african_head_diffuse.tga");
+    //Object object("./ressources/diablo3_pose/diablo3_pose.obj","./ressources/diablo3_pose/diablo3_diffuse.tga");
+    //Object object("./ressources/boggie/body.obj","./ressources/boggie/body_diffuse.tga");
     
     printPoint2d(object,image,white);
     image.flip_vertically();
