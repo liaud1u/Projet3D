@@ -1,9 +1,10 @@
 #include "tgaimage.h"
 #include "object.h"
+#include <limits>
 #include <iostream>
 
 
-#define SIZE 2000
+#define SIZE 1000
 #define DEPTH 255
 
 const TGAColor white = TGAColor(255, 255, 255, 255);
@@ -58,7 +59,7 @@ line(p0.get_x(), p0.get_y(), p1.get_x(), p1.get_y(), image, color);
 
 void printPoint2d(Object &obj, TGAImage &img, const TGAColor &c){
     for(Point3d p : obj.get_points()){
-        img.set(SIZE/2+SIZE/2*p.get_x(),SIZE/2-p.get_y()*SIZE/2,c); 
+        img.set(SIZE/2+SIZE/2*p.get_x(),SIZE/2+p.get_y()*SIZE/2,c); 
     }
 }
 
@@ -82,7 +83,7 @@ void printLine(Object &obj, TGAImage &img, const TGAColor &c){
     
     for(std::vector<int> triangle : faces){
         for(int cpt = 0; cpt<3; cpt++){
-            line((int)(SIZE/2+SIZE/2*points.at(triangle[cpt]).get_x()),(int)(SIZE/2+SIZE/2*-points.at(triangle[cpt]).get_y()),(int)(SIZE/2+SIZE/2*points.at(triangle[(cpt+1)%3]).get_x()),(int)(SIZE/2+SIZE/2*-points.at(triangle[(cpt+1)%3]).get_y()), img, c);
+            line((int)(SIZE/2+SIZE/2*points.at(triangle[cpt]).get_x()),(int)(SIZE/2+SIZE/2*points.at(triangle[cpt]).get_y()),(int)(SIZE/2+SIZE/2*points.at(triangle[(cpt+1)%3]).get_x()),(int)(SIZE/2+SIZE/2*points.at(triangle[(cpt+1)%3]).get_y()), img, c);
         }
     } 
 }
@@ -171,7 +172,7 @@ void printTriangle(Object &obj, TGAImage &img, bool line, bool shading){
         std::vector<Point3d> points_screen;
         
         for(int i : triangle){
-            Point2d p(SIZE/2+SIZE/2*points.at(i).get_x(),SIZE/2+SIZE/2*-points.at(i).get_y());
+            Point2d p(SIZE/2+SIZE/2*points.at(i).get_x(),SIZE/2+SIZE/2*points.at(i).get_y());
             points_tri.push_back(p);
             
             
@@ -181,7 +182,7 @@ void printTriangle(Object &obj, TGAImage &img, bool line, bool shading){
         
          
          //Shading
-         Point3d light(0,0,-0.8);
+         Point3d light(0,0,-1);
          
          Point3d normal = (points_screen[2].minus(points_screen[0])).cross(points_screen[1].minus(points_screen[0])); 
          
@@ -207,8 +208,47 @@ void printTriangle(Object &obj, TGAImage &img, bool line, bool shading){
         
     } 
 }
- 
 
+void printTestYBuffer(TGAImage &img){
+     
+    line(20,34,744,400, img, red);
+    line(120,434,444,400, img, green);
+    line(330,463,594,200, img, blue);
+    line(10,10,790,10, img, white);
+}
+
+void rasterize(Point2d p0, Point2d p1, TGAImage &img,const TGAColor &c, int ybuffer[]){
+    if(p0.get_x()>p1.get_x()){
+        std::swap(p0,p1);
+    }
+    
+    for(int x = p0.get_x(); x <= p1.get_x(); x++){
+        float t = (x-p0.get_x())/(float)(p1.get_x()-p0.get_x());
+        
+        int y = p0.get_y()*(1.-t)+p1.get_y()*t+0.5;
+         
+        if(x < SIZE && x >0 && ybuffer[x]<y){ 
+            ybuffer[x]=y; 
+            img.set(x,0,c);
+        }
+    }
+}
+     
+void rasterizeTest(TGAImage &image2){
+    
+    int ybuffer[SIZE];
+    
+    for(int i = 0; i<SIZE; i++){
+        ybuffer[i]=std::numeric_limits<int>::min();
+    }
+    
+    rasterize(Point2d(20,34),Point2d(744,400),image2,red,ybuffer);
+    rasterize(Point2d(120,434),Point2d(444,400),image2,green,ybuffer);
+    rasterize(Point2d(330,464),Point2d(594,200),image2,blue,ybuffer);
+    
+}
+  
+  
 
 int main(int argc, char** argv) {
 	TGAImage image(SIZE, SIZE, TGAImage::RGB);
@@ -220,14 +260,15 @@ int main(int argc, char** argv) {
     //Object object("./ressources/boggie/body.obj");
     
     printPoint2d(object,image,white);
+    image.flip_vertically();
     
     //Save image
 	image.write_tga_file("output_point.tga");
     
-    
     image.clear();
      
     printLine(object,image,white);
+    image.flip_vertically();
     
     //Save image
 	image.write_tga_file("output_line.tga");
@@ -235,9 +276,26 @@ int main(int argc, char** argv) {
     
     image.clear();
     printTriangle(object,image,false,true);
+    image.flip_vertically();
      
     //Save image
 	image.write_tga_file("output_triangle.tga");
+    
+    image.clear(); 
+    printTestYBuffer(image);
+    
+    image.flip_vertically();
+     
+    //Save image
+	image.write_tga_file("output_ybuffer.tga");
+    
+     
+	TGAImage image2(SIZE, 16, TGAImage::RGB);
+    
+    rasterizeTest(image2);
+    
+    //Save image
+	image2.write_tga_file("output_ybuffer_rasterize.tga");
     
     
     
