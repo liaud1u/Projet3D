@@ -64,7 +64,7 @@ void printPoint2d(Object &obj, TGAImage &img, const TGAColor &c){
 }
 
 
-Point3d barycentric(std::vector<Point2d> &pts, Point2d P){
+Point3d barycentric(std::vector<Point3d> &pts, Point2d P){
     Point3d p1(pts[2].get_x()-pts[0].get_x(), pts[1].get_x()-pts[0].get_x(),pts[0].get_x()-P.get_x());
     Point3d p2(pts[2].get_y()-pts[0].get_y(), pts[1].get_y()-pts[0].get_y(),pts[0].get_y()-P.get_y());
     
@@ -89,69 +89,37 @@ void printLine(Object &obj, TGAImage &img, const TGAColor &c){
 }
 
 
-void traceTriangle(std::vector<Point2d> points_tri, TGAImage &img, const TGAColor &c, bool line_mode){
-     //Tri des points par y
+void traceTriangle(std::vector<Point3d> points_tri, TGAImage &img, const TGAColor &c,   int * zbuffer[]){
+        //Tri des points par y
         if(points_tri[0].get_y()> points_tri[1].get_y())std::swap(points_tri[0],points_tri[1]);
         if(points_tri[0].get_y()> points_tri[2].get_y())std::swap(points_tri[0],points_tri[2]);
         if(points_tri[1].get_y()> points_tri[2].get_y())std::swap(points_tri[1],points_tri[2]);
+         
+        //Barycentic Method
+        Point2d boxmin(img.get_width()-1, img.get_height()-1);
+        Point2d boxmax(0,0);
+        Point2d clamp(img.get_width()-1,img.get_height()-1);
+           
+        for(int i =0; i<3; i++){ 
+            boxmin.set_x(max(0,min(boxmin.get_x(),points_tri[i].get_x())));
+            boxmin.set_y(max(0,min(boxmin.get_y(),points_tri[i].get_y())));
+            boxmax.set_x(min(clamp.get_x(),max(boxmax.get_x(),points_tri[i].get_x())));
+            boxmax.set_y(min(clamp.get_y(),max(boxmax.get_y(),points_tri[i].get_y())));
+        }
+            
+        int pz;
         
-        
-        float hauteur = points_tri[2].get_y() - points_tri[0].get_y();
-        
-        //Line method
-        if(line_mode){
-            //Remplissage de la partie haute du triangle (de tri[0].get_y() à tri[1].get_y())
-            for(int i = points_tri[0].get_y(); i <= points_tri[1].get_y(); i++){
-                float hauteur_sspartie=points_tri[1].get_y() - points_tri[0].get_y()+1;
+        for(int px = boxmin.get_x(); px<=boxmax.get_x();px++){  
+            for(int py = boxmin.get_y(); py<=boxmax.get_y();py++){
+                Point3d bc_screen = barycentric(points_tri,Point2d(px,py));
+                if(bc_screen.get_x()<0 || bc_screen.get_y()<0 || bc_screen.get_z() < 0) continue;
                 
-                float alpha = (float)((float)i-points_tri[0].get_y())/hauteur;              
-                float beta = (float)((float)i-points_tri[0].get_y())/hauteur_sspartie;
+                pz=points_tri[0].get_z()*bc_screen.get_x();
+                pz=points_tri[1].get_z()*bc_screen.get_y();
+                pz=points_tri[2].get_z()*bc_screen.get_z();
                 
-                Point2d p1(points_tri[0].get_x()+(points_tri[2].get_x()-points_tri[0].get_x())*alpha,i);
-                Point2d p2(points_tri[0].get_x()+(points_tri[1].get_x()-points_tri[0].get_x())*beta,i);
-                
-                
-                if(p1.get_x()>p2.get_x())
-                    std::swap(p1,p2);
-                
-                line(p1,p2,img,c);
-            }
-            
-            
-            //Remplissage de la partie basse du triangle (de tri[2].get_y() à tri[1].get_y())
-            for(int i = points_tri[1].get_y(); i <= points_tri[2].get_y(); i++){
-                float hauteur_sspartie=points_tri[2].get_y() - points_tri[1].get_y()+1;
-                
-                float alpha = (float)((float)i-points_tri[0].get_y())/hauteur;              
-                float beta = (float)((float)i-points_tri[1].get_y())/hauteur_sspartie;
-                
-                Point2d p1(points_tri[0].get_x()+(points_tri[2].get_x()-points_tri[0].get_x())*alpha,i);
-                Point2d p2(points_tri[1].get_x()+(points_tri[2].get_x()-points_tri[1].get_x())*beta,i);
-                
-                
-                if(p1.get_x()>p2.get_x())
-                    std::swap(p1,p2);
-                
-                line(p1,p2,img,c);
-            }
-        }else{ 
-            //Barycentic Method
-            Point2d boxmin(img.get_width()-1, img.get_height()-1);
-            Point2d boxmax(0,0);
-            Point2d clamp(img.get_width()-1,img.get_height()-1);
-            
-            for(int i =0; i<3; i++){ 
-                boxmin.set_x(max(0,min(boxmin.get_x(),points_tri[i].get_x())));
-                boxmin.set_y(max(0,min(boxmin.get_y(),points_tri[i].get_y())));
-                boxmax.set_x(min(clamp.get_x(),max(boxmax.get_x(),points_tri[i].get_x())));
-                boxmax.set_y(min(clamp.get_y(),max(boxmax.get_y(),points_tri[i].get_y())));
-            }
-            
-             
-            for(int px = boxmin.get_x(); px<=boxmax.get_x();px++){  
-                for(int py = boxmin.get_y(); py<=boxmax.get_y();py++){
-                    Point3d bc_screen = barycentric(points_tri,Point2d(px,py));
-                    if(bc_screen.get_x()<0 || bc_screen.get_y()<0 || bc_screen.get_z() < 0) continue;
+                if(zbuffer[px][py]<pz){
+                    zbuffer[px][py] = pz;
                     img.set(px,py,c);
                 }
             }
@@ -159,20 +127,28 @@ void traceTriangle(std::vector<Point2d> points_tri, TGAImage &img, const TGAColo
 }
 
 
-void printTriangle(Object &obj, TGAImage &img, bool line, bool shading){
+void printTriangle(Object &obj, TGAImage &img, bool shading){
     
     std::vector<Point3d> points = obj.get_points();
     std::vector<std::vector<int>> faces = obj.get_faces();
     
+    int ** zbuffer = new int*[SIZE];
  
+    for(int i = 0; i<SIZE; i++){
+        zbuffer[i]=new int[SIZE];
+        for(int j = 0; j<SIZE; j++){
+            zbuffer[i][j]=std::numeric_limits<int>::min();
+        }
+    }
+    
     
     for(std::vector<int> triangle : faces){ 
         
-        std::vector<Point2d> points_tri;
+        std::vector<Point3d> points_tri;
         std::vector<Point3d> points_screen;
         
         for(int i : triangle){
-            Point2d p(SIZE/2+SIZE/2*points.at(i).get_x(),SIZE/2+SIZE/2*points.at(i).get_y());
+            Point3d p(SIZE/2+SIZE/2*points.at(i).get_x(),SIZE/2+SIZE/2*points.at(i).get_y(),points.at(i).get_z());
             points_tri.push_back(p);
             
             
@@ -193,13 +169,13 @@ void printTriangle(Object &obj, TGAImage &img, bool line, bool shading){
          if(light_intensity>0 && shading){
         
             TGAColor c((int)(light_intensity*255),(int)(light_intensity*255),(int)(light_intensity*255),255);
-            traceTriangle(points_tri,img,c,line);
+            traceTriangle(points_tri,img,c,zbuffer);
         }
          
          if(!shading){
             
             TGAColor c(std::rand()%255,std::rand()%255,std::rand()%255,255);
-            traceTriangle(points_tri,img,c,line);
+            traceTriangle(points_tri,img,c,zbuffer);
          }
          
          
@@ -275,7 +251,7 @@ int main(int argc, char** argv) {
     
     
     image.clear();
-    printTriangle(object,image,false,true);
+    printTriangle(object,image,true);
     image.flip_vertically();
      
     //Save image
@@ -291,13 +267,7 @@ int main(int argc, char** argv) {
     
      
 	TGAImage image2(SIZE, 16, TGAImage::RGB);
-    
-    rasterizeTest(image2);
-    
-    //Save image
-	image2.write_tga_file("output_ybuffer_rasterize.tga");
-    
-    
+    rasterizeTest(image2); 
     
 	return 0;
 }
