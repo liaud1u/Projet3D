@@ -88,13 +88,11 @@ void printLine(Object &obj, TGAImage &img, const TGAColor &c){
 }
 
 
-void traceTriangle(std::vector<Point3d> points_tri, std::vector<Point2d> points_text,TGAImage &img, float light_intensity,   int * zbuffer[], Object &obj){
+void traceTriangle(std::vector<Point3d> points_tri, std::vector<Point3d> points_text,TGAImage &img, float light_intensity,   int * zbuffer[], Object &obj){
         //Tri des points par y
-        if(points_tri[0].get_y()> points_tri[1].get_y())std::swap(points_tri[0],points_tri[1]);
-        if(points_tri[0].get_y()> points_tri[2].get_y())std::swap(points_tri[0],points_tri[2]);
-        if(points_tri[1].get_y()> points_tri[2].get_y())std::swap(points_tri[1],points_tri[2]); 
-        
-        
+        if(points_tri[0].get_y()> points_tri[1].get_y()){std::swap(points_tri[0],points_tri[1]);std::swap(points_text[0],points_text[1]);}
+        if(points_tri[0].get_y()> points_tri[2].get_y()){std::swap(points_tri[0],points_tri[2]);std::swap(points_text[0],points_text[2]);}
+        if(points_tri[1].get_y()> points_tri[2].get_y()){std::swap(points_tri[1],points_tri[2]);std::swap(points_text[1],points_text[2]);}
         
         //Barycentic Method
         Point2d boxmin(img.get_width()-1, img.get_height()-1);
@@ -123,17 +121,11 @@ void traceTriangle(std::vector<Point3d> points_tri, std::vector<Point2d> points_
                     TGAColor color; 
                     
                     float pu = 0, pv =0;
+                
                         
-                    pu=points_text[0].get_x()*bc_screen.get_x();
-                    pu+=points_text[1].get_x()*bc_screen.get_y();
-                    pu+=points_text[2].get_x()*bc_screen.get_z();
-                    
-                    
-                    pv=points_text[0].get_y()*bc_screen.get_x();
-                    pv+=points_text[1].get_y()*bc_screen.get_y();
-                    pv+=points_text[2].get_y()*bc_screen.get_z();
-                     
-                    
+                    pu=points_text[0].get_x()*bc_screen.get_x()+points_text[1].get_x()*bc_screen.get_y()+points_text[2].get_x()*bc_screen.get_z();
+                    pv=points_text[0].get_y()*bc_screen.get_x()+points_text[1].get_y()*bc_screen.get_y()+points_text[2].get_y()*bc_screen.get_z();
+                    //pw=points_text[0].get_z()*bc_screen.get_x()+points_text[1].get_z()*bc_screen.get_y()+points_text[2].get_z()*bc_screen.get_z();
                     
                     color= obj.get_color(Point2d(pu,pv),light_intensity);
                     
@@ -148,7 +140,7 @@ void traceTriangle(std::vector<Point3d> points_tri, std::vector<Point2d> points_
 void printTriangle(Object &obj, TGAImage &img, bool shading){
     
     std::vector<Point3d> points = obj.get_points();
-    std::vector<Point2d> all_points_text = obj.get_textures();
+    std::vector<Point3d> all_points_text = obj.get_textures();
     std::vector<std::vector<int>> faces = obj.get_faces();
     std::vector<std::vector<int>> faces_text = obj.get_texture_faces();
      
@@ -165,7 +157,7 @@ void printTriangle(Object &obj, TGAImage &img, bool shading){
     
     for(std::vector<int> triangle : faces){ 
         std::vector<Point3d> points_tri;
-        std::vector<Point2d> points_text;
+        std::vector<Point3d> points_text;
         std::vector<Point3d> points_screen;
         
         for(int i : triangle){
@@ -287,8 +279,7 @@ int main(int argc, char** argv) {
 	image.write_tga_file("output_triangle.tga");
     
     image.clear(); 
-    printTestYBuffer(image);
-    
+    printTestYBuffer(image);  
     image.flip_vertically();
      
     //Save image

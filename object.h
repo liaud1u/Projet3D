@@ -15,7 +15,7 @@ protected:
     std::vector<Point3d> points;
     std::vector<std::vector<int>> faces;
     std::vector<std::vector<int>> textures_faces;
-    std::vector<Point2d> texture_coord;
+    std::vector<Point3d> texture_coord;
     TGAImage texture;
     
 public:
@@ -28,7 +28,7 @@ public:
     
     std::vector<std::vector<int>> get_texture_faces(){return textures_faces;}
     
-    std::vector<Point2d> get_textures(){return texture_coord;}
+    std::vector<Point3d> get_textures(){return texture_coord;}
     
     std::vector<Point3d> get_points(){return points;}
     
