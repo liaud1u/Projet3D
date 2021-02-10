@@ -1,5 +1,6 @@
 #include "tgaimage.h"
 #include "object.h"
+#include "matrix.h"
 #include <limits>
 #include <iostream>
 
@@ -12,6 +13,8 @@ const TGAColor red   = TGAColor(255, 0,   0,   255);
 const TGAColor green   = TGAColor(0, 255,   0,   255);
 const TGAColor blue   = TGAColor(0, 0,   255,   255);
 
+Point3d camera(0,0,3);
+Point3d light(0,0,-1);
 
 
 
@@ -88,7 +91,7 @@ void printLine(Object &obj, TGAImage &img, const TGAColor &c){
 }
 
 
-void traceTriangle(std::vector<Point3d> points_tri, std::vector<Point3d> points_text,TGAImage &img, float light_intensity,   int * zbuffer[], Object &obj){
+void traceTriangle(std::vector<Point3d> points_tri, std::vector<Point3d> points_text,TGAImage &img, float light_intensity,  double * zbuffer[], Object &obj){
         //Tri des points par y
         if(points_tri[0].get_y()> points_tri[1].get_y()){std::swap(points_tri[0],points_tri[1]);std::swap(points_text[0],points_text[1]);}
         if(points_tri[0].get_y()> points_tri[2].get_y()){std::swap(points_tri[0],points_tri[2]);std::swap(points_text[0],points_text[2]);}
@@ -106,7 +109,7 @@ void traceTriangle(std::vector<Point3d> points_tri, std::vector<Point3d> points_
             boxmax.set_y(min(clamp.get_y(),max(boxmax.get_y(),points_tri[i].get_y())));
         }
             
-        int pz;
+        double pz;
         
         for(int px = boxmin.get_x(); px<=boxmax.get_x();px++){  
             for(int py = boxmin.get_y(); py<=boxmax.get_y();py++){
@@ -114,9 +117,9 @@ void traceTriangle(std::vector<Point3d> points_tri, std::vector<Point3d> points_
                 if(bc_screen.get_x()<0 || bc_screen.get_y()<0 || bc_screen.get_z() < 0) continue;
                 
                 pz=points_tri[0].get_z()*bc_screen.get_x();
-                pz=points_tri[1].get_z()*bc_screen.get_y();
-                pz=points_tri[2].get_z()*bc_screen.get_z();
-                
+                pz+=points_tri[1].get_z()*bc_screen.get_y();
+                pz+=points_tri[2].get_z()*bc_screen.get_z();
+                 
                 if(zbuffer[px][py]<pz){
                     TGAColor color; 
                     
@@ -144,10 +147,10 @@ void printTriangle(Object &obj, TGAImage &img, bool shading){
     std::vector<std::vector<int>> faces = obj.get_faces();
     std::vector<std::vector<int>> faces_text = obj.get_texture_faces();
      
-    int ** zbuffer = new int*[SIZE];
+    double ** zbuffer = new double*[SIZE];
  
     for(int i = 0; i<SIZE; i++){
-        zbuffer[i]=new int[SIZE];
+        zbuffer[i]=new double[SIZE];
         for(int j = 0; j<SIZE; j++){
             zbuffer[i][j]=std::numeric_limits<int>::min();
         }
@@ -161,14 +164,15 @@ void printTriangle(Object &obj, TGAImage &img, bool shading){
         std::vector<Point3d> points_screen;
         
         for(int i : triangle){
-            Point3d p(SIZE/2+SIZE/2*points.at(i).get_x(),SIZE/2+SIZE/2*points.at(i).get_y(),points.at(i).get_z());
+            Point3d p(points.at(i).get_x(),points.at(i).get_y(),points.at(i).get_z());
+            float c= camera.get_z();
+                         
+            p.set_x(SIZE/2+SIZE/3*(p.get_x()/(float)(1-(p.get_z()/c))));
+            p.set_y(SIZE/2+SIZE/3*(p.get_y()/(float)(1-(p.get_z()/c))));
+            p.set_z(SIZE/2*(p.get_z()/(float)(1-(p.get_z()/c))));
+             
+            points_screen.push_back(p);
             points_tri.push_back(p);
-            
-            
-            Point3d p3d(points.at(i).get_x(),points.at(i).get_y(),points.at(i).get_z());
-            points_screen.push_back(p3d);
-             
-             
         }
         
         
@@ -179,9 +183,7 @@ void printTriangle(Object &obj, TGAImage &img, bool shading){
         fcpt++;
         
         
-         
-         //Shading
-         Point3d light(0,0,-1);
+          
          
          Point3d normal = (points_screen[2].minus(points_screen[0])).cross(points_screen[1].minus(points_screen[0])); 
          
