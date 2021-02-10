@@ -140,6 +140,18 @@ void traceTriangle(std::vector<Point3d> points_tri, std::vector<Point3d> points_
 }
 
 
+Matrix viewport(int x, int y, int w, int h) {
+    Matrix m = Matrix::identity(4);
+    m[0][3] = x+w/2.f;
+    m[1][3] = y+h/2.f;
+    m[2][3] = DEPTH/2.f;
+
+    m[0][0] = w/2.f;
+    m[1][1] = h/2.f;
+    m[2][2] = DEPTH/2.f;
+    return m;
+}
+
 void printTriangle(Object &obj, TGAImage &img, bool shading){
     
     std::vector<Point3d> points = obj.get_points();
@@ -158,21 +170,32 @@ void printTriangle(Object &obj, TGAImage &img, bool shading){
     
     int fcpt = 0;
     
-    for(std::vector<int> triangle : faces){ 
-        std::vector<Point3d> points_tri;
+    Matrix ViewPort   = viewport(SIZE/8, SIZE/8, SIZE*3/4, SIZE*3/4);
+    
+    for(std::vector<int> triangle : faces){   
         std::vector<Point3d> points_text;
         std::vector<Point3d> points_screen;
+        std::vector<Point3d> points_world;
         
         for(int i : triangle){
             Point3d p(points.at(i).get_x(),points.at(i).get_y(),points.at(i).get_z());
+            
+            points_world.push_back(p);
+            
             float c= camera.get_z();
                          
-            p.set_x(SIZE/2+SIZE/3*(p.get_x()/(float)(1-(p.get_z()/c))));
-            p.set_y(SIZE/2+SIZE/3*(p.get_y()/(float)(1-(p.get_z()/c))));
-            p.set_z(SIZE/2*(p.get_z()/(float)(1-(p.get_z()/c))));
+            //p.set_x(SIZE/2+SIZE/3*(p.get_x()/(float)(1-(p.get_z()/c))));
+            //p.set_y(SIZE/2+SIZE/3*(p.get_y()/(float)(1-(p.get_z()/c))));
+            //p.set_z(SIZE/2*(p.get_z()/(float)(1-(p.get_z()/c))));
              
-            points_screen.push_back(p);
-            points_tri.push_back(p);
+            Matrix mat = Matrix::fromP3D(p);
+            Matrix id = Matrix::identity(4);
+            id[3][2] = -1.f/c;
+            
+            p=(ViewPort*id*mat).toP3D();  
+            
+            
+            points_screen.push_back(p);  
         }
         
         
@@ -185,7 +208,7 @@ void printTriangle(Object &obj, TGAImage &img, bool shading){
         
           
          
-         Point3d normal = (points_screen[2].minus(points_screen[0])).cross(points_screen[1].minus(points_screen[0])); 
+         Point3d normal = (points_world[2].minus(points_world[0])).cross(points_world[1].minus(points_world[0])); 
          
          normal.normalize();
          
@@ -193,12 +216,12 @@ void printTriangle(Object &obj, TGAImage &img, bool shading){
           
          if(light_intensity>0 && shading){
          
-            traceTriangle(points_tri,points_text,img,light_intensity,zbuffer,obj);
+            traceTriangle(points_screen,points_text,img,light_intensity,zbuffer,obj);
         }
          
          if(!shading){
              
-            traceTriangle(points_tri,points_text,img,light_intensity,zbuffer,obj);
+            traceTriangle(points_screen,points_text,img,light_intensity,zbuffer,obj);
          }
          
          
