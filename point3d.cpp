@@ -33,6 +33,15 @@ void Point3d::product(float value){
     z*=value;
 }
 
+
+float Point3d::get(int i){
+    switch(i){
+        case 1:return y;
+        case 2: return z;
+        default:return x;
+    }
+}
+
 float Point3d::norm(){
     return sqrt(dotproduct(*this));
 }

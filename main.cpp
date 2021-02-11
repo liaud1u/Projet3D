@@ -16,6 +16,7 @@ const TGAColor blue   = TGAColor(0, 0,   255,   255);
 Point3d camera(0,0,3);
 Point3d light(0,0,-1);
 
+Point3d eye(-1,-1,3);
 
 
 float max(float x, float y){
@@ -152,6 +153,26 @@ Matrix viewport(int x, int y, int w, int h) {
     return m;
 }
 
+Matrix lookat(Point3d eye, Point3d up) {
+    Point3d c(0,0,0);
+    
+    Point3d z = (eye.minus(Point3d(0,0,0)));
+    z.normalize();
+    Point3d x = (up.cross(z));
+    x.normalize();
+    Point3d y = (z.cross(x));
+    y.normalize();
+    
+    Matrix res = Matrix::identity(4);
+    for (int i=0; i<3; i++) {
+        res[0][i] = x.get(i);
+        res[1][i] = y.get(i);
+        res[2][i] = z.get(i);
+        res[i][3] = -c.get(i);
+    }
+    return res;
+}
+
 void printTriangle(Object &obj, TGAImage &img, bool shading){
     
     std::vector<Point3d> points = obj.get_points();
@@ -171,7 +192,12 @@ void printTriangle(Object &obj, TGAImage &img, bool shading){
     int fcpt = 0;
     
     Matrix ViewPort   = viewport(SIZE/8, SIZE/8, SIZE*3/4, SIZE*3/4);
+    Matrix ModelView  = lookat(eye, Point3d(0,1,0));
     
+    Matrix id = Matrix::identity(4);
+            
+    id[3][2] = -1.f/(eye.minus(Point3d(0,0,0))).norm();
+            
     for(std::vector<int> triangle : faces){   
         std::vector<Point3d> points_text;
         std::vector<Point3d> points_screen;
@@ -180,19 +206,11 @@ void printTriangle(Object &obj, TGAImage &img, bool shading){
         for(int i : triangle){
             Point3d p(points.at(i).get_x(),points.at(i).get_y(),points.at(i).get_z());
             
-            points_world.push_back(p);
-            
-            float c= camera.get_z();
-                         
-            //p.set_x(SIZE/2+SIZE/3*(p.get_x()/(float)(1-(p.get_z()/c))));
-            //p.set_y(SIZE/2+SIZE/3*(p.get_y()/(float)(1-(p.get_z()/c))));
-            //p.set_z(SIZE/2*(p.get_z()/(float)(1-(p.get_z()/c))));
+            points_world.push_back(p); 
              
             Matrix mat = Matrix::fromP3D(p);
-            Matrix id = Matrix::identity(4);
-            id[3][2] = -1.f/c;
             
-            p=(ViewPort*id*mat).toP3D();  
+            p=(ViewPort*id*ModelView*mat).toP3D();  
             
             
             points_screen.push_back(p);  

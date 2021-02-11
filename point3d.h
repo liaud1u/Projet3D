@@ -30,6 +30,8 @@ public:
     
     void product(float value);
     
+    float get(int i);
+    
     float dotproduct(Point3d p1);
     
     void normalize();
