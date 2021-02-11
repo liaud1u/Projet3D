@@ -12,8 +12,7 @@ Object::Object(){}
 
 Object::Object(const char *filename, const char *texture_path) : path(filename), texture_path(texture_path){ 
 
-    texture.read_tga_file(texture_path);
-    texture.flip_horizontally();  
+    texture.read_tga_file(texture_path); 
     texture.flip_vertically();  
     
     std::ifstream in;
@@ -31,15 +30,19 @@ Object::Object(const char *filename, const char *texture_path) : path(filename),
             if(line[0]=='v' && line[1]==' '){ 
                 std::istringstream splited_string(line.c_str());
                 std::string to_delete,x,y,z;
-                splited_string>> to_delete >> x >> y >> z;
+                splited_string>> to_delete >> x >> y >> z; 
                 Point3d p(std::stof(x),std::stof(y),std::stof(z));
                 points.push_back(p);
             }
             if(line[0]=='v' && line[1]=='t'){ 
                 std::istringstream splited_string(line.c_str());
                 std::string to_delete,x,y,z;
-                splited_string>> to_delete >> x >> y>>z;
-                Point3d p(std::stof(x),std::stof(y),std::stof(z));
+                splited_string>> to_delete >> x >> y>>z; 
+                Point3d p(std::stof(x),std::stof(y),0);
+                
+                if(z!="")
+                    p.set_z(std::stof(z));
+                
                 texture_coord.push_back(p);
             }
             if(line[0]=='f' && line[1]==' '){ 
