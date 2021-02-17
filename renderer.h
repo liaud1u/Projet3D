@@ -11,7 +11,7 @@
 #include "tgaimage.h"
 
  
-#define SIZE 4096
+#define SIZE 2048
 #define DEPTH 255
 
 float max(float x, float y);
@@ -30,7 +30,7 @@ Point3d barycentric(std::vector<Point3d> &pts, Point2d P);
 
 void printLine(Object &obj, TGAImage &img, const TGAColor &c);
 
-void traceTriangle(std::vector<Point3d> points_tri, std::vector<Point3d> points_text,TGAImage &img, float light_intensity,  double * zbuffer[], Object &obj);
+void traceTriangle(std::vector<Point3d> points_tri, std::vector<Point3d> points_text,std::vector<Point3d>  points_vn,TGAImage &img, float light_intensity,  double * zbuffer[], Object &obj);
 
 
 Matrix viewport(int x, int y, int w, int h);

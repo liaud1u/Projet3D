@@ -45,6 +45,18 @@ Object::Object(const char *filename, const char *texture_path) : path(filename),
                 
                 texture_coord.push_back(p);
             }
+            
+            if(line[0]=='v' && line[1]=='n'){ 
+                std::istringstream splited_string(line.c_str());
+                std::string to_delete,x,y,z;
+                splited_string>> to_delete >> x >> y>>z; 
+                Point3d p(std::stof(x),std::stof(y),0);
+                
+                if(z!="")
+                    p.set_z(std::stof(z));
+                
+                vn_coord.push_back(p);
+            }
             if(line[0]=='f' && line[1]==' '){ 
                 std::istringstream splited_string(line.c_str());
                 std::string to_delete, face;
@@ -53,6 +65,7 @@ Object::Object(const char *filename, const char *texture_path) : path(filename),
                 
                 std::vector<int> triangle; 
                 std::vector<int> texture_triangle; 
+                std::vector<int> vn_triangle; 
                 
                 for(int c = 0; c<3; c++){ 
                 
@@ -64,6 +77,8 @@ Object::Object(const char *filename, const char *texture_path) : path(filename),
                     triangle.push_back(std::stoi(token)-1);
                     std::getline(points, token, '/') ;  
                     texture_triangle.push_back(std::stoi(token)-1);
+                    std::getline(points, token, '/') ;  
+                    vn_triangle.push_back(std::stoi(token)-1);
                     
                     
                     splited_string >> face;
@@ -72,6 +87,7 @@ Object::Object(const char *filename, const char *texture_path) : path(filename),
                 
                 faces.push_back(triangle);
                 textures_faces.push_back(texture_triangle);
+                vn_faces.push_back(vn_triangle);
             }
         }
         
