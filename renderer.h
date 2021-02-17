@@ -11,7 +11,7 @@
 #include "tgaimage.h"
 
  
-#define SIZE 1000
+#define SIZE 4096
 #define DEPTH 255
 
 float max(float x, float y);
@@ -39,6 +39,7 @@ Matrix lookat(Point3d eye, Point3d up);
 
 void printTriangle(Object &obj, TGAImage &img, bool shading, Point3d eye, Point3d light);
  
+void init();
 
 void rasterize(Point2d p0, Point2d p1, TGAImage &img,const TGAColor &c, int ybuffer[]);
 

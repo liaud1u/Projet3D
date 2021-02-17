@@ -8,6 +8,19 @@
 #include "tgaimage.h"
 #include "renderer.h"
 
+ double ** zbuffer = new double*[SIZE];
+ 
+ void init(){
+     
+ 
+    for(int i = 0; i<SIZE; i++){
+        zbuffer[i]=new double[SIZE];
+        for(int j = 0; j<SIZE; j++){
+            zbuffer[i][j]=std::numeric_limits<int>::min();
+        }
+    }
+ }
+
 
 float max(float x, float y){
     return x>y?x:y;
@@ -170,14 +183,7 @@ void printTriangle(Object &obj, TGAImage &img, bool shading, Point3d eye, Point3
     std::vector<std::vector<int>> faces = obj.get_faces();
     std::vector<std::vector<int>> faces_text = obj.get_texture_faces();
      
-    double ** zbuffer = new double*[SIZE];
- 
-    for(int i = 0; i<SIZE; i++){
-        zbuffer[i]=new double[SIZE];
-        for(int j = 0; j<SIZE; j++){
-            zbuffer[i][j]=std::numeric_limits<int>::min();
-        }
-    }
+   
     
     int fcpt = 0;
     
