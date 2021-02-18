@@ -30,14 +30,14 @@ Point3d barycentric(std::vector<Point3d> &pts, Point2d P);
 
 void printLine(Object &obj, TGAImage &img, const TGAColor &c);
 
-void traceTriangle(std::vector<Point3d> points_tri, std::vector<Point3d> points_text,std::vector<Point3d>  points_vn,TGAImage &img, float light_intensity,  double * zbuffer[], Object &obj);
+void traceTriangle(std::vector<Point3d> points_tri, std::vector<Point3d> points_text,std::vector<Point3d>  points_vn,TGAImage &img,  double * zbuffer[], Object &obj);
 
 
 Matrix viewport(int x, int y, int w, int h);
 
 Matrix lookat(Point3d eye, Point3d up);
 
-void printTriangle(Object &obj, TGAImage &img, bool shading, Point3d eye, Point3d light);
+void printTriangle(Object &obj, TGAImage &img, bool shading, Point3d eye);
  
 void init();
 

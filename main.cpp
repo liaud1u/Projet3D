@@ -10,8 +10,7 @@ const TGAColor white = TGAColor(255, 255, 255, 255);
 const TGAColor red   = TGAColor(255, 0,   0,   255);
 const TGAColor green   = TGAColor(0, 255,   0,   255);
 const TGAColor blue   = TGAColor(0, 0,   255,   255);
- 
-Point3d light(0,0,-1); 
+  
 Point3d eye(-1,1,3);
   
 
@@ -25,9 +24,9 @@ int main(int argc, char** argv) {
     Object   eyes_out("./ressources/african_head/african_head_eye_outer.obj","./ressources/african_head/african_head_eye_outer_diffuse.tga");
     Object   head("./ressources/african_head/african_head.obj","./ressources/african_head/african_head_diffuse.tga");
     
-    printTriangle(eyes_in,image,true,eye, light);
-    //printTriangle(eyes_out,image,true,eye, light);
-    printTriangle(head,image,true,eye, light);
+    printTriangle(eyes_in,image,true,eye);
+    //printTriangle(eyes_out,image,true,eye);
+    printTriangle(head,image,true,eye);
     image.flip_vertically();
      
     //Save image
@@ -39,7 +38,7 @@ int main(int argc, char** argv) {
     
     Object diablo("./ressources/diablo3_pose/diablo3_pose.obj","./ressources/diablo3_pose/diablo3_pose_diffuse.tga");
     
-    printTriangle(diablo,image,true,eye, light);
+    printTriangle(diablo,image,true,eye);
     
     image.flip_vertically();
      
@@ -53,9 +52,9 @@ int main(int argc, char** argv) {
     Object headb("./ressources/boggie/head.obj","./ressources/boggie/head_diffuse.tga");
     Object body("./ressources/boggie/body.obj","./ressources/boggie/body_diffuse.tga");
             
-    printTriangle(headb,image,true,eye, light);
-    printTriangle(eyes,image,true,eye, light);
-    printTriangle(body,image,true,eye, light);
+    printTriangle(headb,image,true,eye);
+    printTriangle(eyes,image,true,eye);
+    printTriangle(body,image,true,eye);
     
     image.flip_vertically();
      

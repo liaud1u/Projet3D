@@ -8,6 +8,9 @@
 #include "tgaimage.h"
 #include "renderer.h"
 
+
+Point3d light(0,0,-1);
+
  double ** zbuffer = new double*[SIZE];
  
  void init(){
@@ -95,7 +98,9 @@ void printLine(Object &obj, TGAImage &img, const TGAColor &c){
 }
 
 
-void traceTriangle(std::vector<Point3d> points_tri, std::vector<Point3d> points_text,std::vector<Point3d>  points_vn,TGAImage &img, float light_intensity,  double * zbuffer[], Object &obj){
+void traceTriangle(std::vector<Point3d> points_tri, std::vector<Point3d> points_text,std::vector<Point3d>  points_vn,TGAImage &img, double * zbuffer[], Object &obj){
+        light.normalize();
+    
         //Tri des points par y
         if(points_tri[0].get_y()> points_tri[1].get_y()){std::swap(points_tri[0],points_tri[1]);std::swap(points_text[0],points_text[1]);std::swap(points_vn[0],points_vn[1]);}
         if(points_tri[0].get_y()> points_tri[2].get_y()){std::swap(points_tri[0],points_tri[2]);std::swap(points_text[0],points_text[2]);std::swap(points_vn[0],points_vn[2]);}
@@ -143,7 +148,6 @@ void traceTriangle(std::vector<Point3d> points_tri, std::vector<Point3d> points_
                     
                     Point3d poin(pul,pvl,pwl); 
                     
-                    Point3d light(0,0,-1);
                     
                     float intensity = -poin.dotproduct(light);
                       
@@ -193,7 +197,7 @@ Matrix lookat(Point3d eye, Point3d up) {
     return res;
 }
 
-void printTriangle(Object &obj, TGAImage &img, bool shading, Point3d eye, Point3d light){
+void printTriangle(Object &obj, TGAImage &img, bool shading, Point3d eye){
     
     std::vector<Point3d> points = obj.get_points();
     std::vector<Point3d> all_points_text = obj.get_textures();
@@ -245,23 +249,10 @@ void printTriangle(Object &obj, TGAImage &img, bool shading, Point3d eye, Point3
         fcpt++;
         
         
-          
+           
          
-         Point3d normal = (points_world[2].minus(points_world[0])).cross(points_world[1].minus(points_world[0])); 
-         
-         normal.normalize();
-         
-         float light_intensity = -light.dotproduct(normal);
-          
-         if(light_intensity>0 && shading){
-         
-            traceTriangle(points_screen,points_text,points_vn,img,light_intensity,zbuffer,obj);
-        }
-         
-         if(!shading){
-             
-            traceTriangle(points_screen,points_text,points_vn,img,light_intensity,zbuffer,obj);
-         } 
+            traceTriangle(points_screen,points_text,points_vn,img,zbuffer,obj);
+        
     } 
 }
  
