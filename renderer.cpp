@@ -9,7 +9,7 @@
 #include "renderer.h"
 
 
-Point3d light(-1,-1,-3);
+Point3d light;
 
 struct GouraudShader : public IShader { 
 
@@ -19,24 +19,16 @@ struct GouraudShader : public IShader {
 
     virtual bool fragment(std::vector<Point3d> points_vn, Point3d bc_screen, TGAColor &color, Point3d norm) {   
         
-       
-        float pul, pvl, pwl;
+        
         
         light.normalize();
         
         Point3d light2(2*light.get_x(),2*light.get_y(),2*light.get_z());
-         
-        pul=points_vn[0].get_x()*bc_screen.get_x()+points_vn[1].get_x()*bc_screen.get_y()+points_vn[2].get_x()*bc_screen.get_z();
-        pvl=points_vn[0].get_y()*bc_screen.get_x()+points_vn[1].get_y()*bc_screen.get_y()+points_vn[2].get_y()*bc_screen.get_z();
-        pwl=points_vn[0].get_z()*bc_screen.get_x()+points_vn[1].get_z()*bc_screen.get_y()+points_vn[2].get_z()*bc_screen.get_z();
-        
-                    
-        Point3d n(pul,pvl,pwl);  
-        n = norm; 
+          
+        Point3d n = norm; 
                     
         //std::cout << n.get_x() << " " << n.get_y() << " " << n.get_z() << "\n";
-        
-         float intensity = -light.dotproduct(n);
+         
         
         Point3d r = n.cross((n.cross(light2)));
         r.minus( light);
@@ -56,9 +48,12 @@ struct GouraudShader : public IShader {
 
  double ** zbuffer = new double*[SIZE];
  
- void init(){
-     
- 
+ void init(Point3d light_dir){
+      
+    
+    
+    light = Point3d(-light_dir.get_x(),-light_dir.get_y(), -light_dir.get_z()); 
+    
     for(int i = 0; i<SIZE; i++){
         zbuffer[i]=new double[SIZE];
         for(int j = 0; j<SIZE; j++){
@@ -176,13 +171,12 @@ void traceTriangle(std::vector<Point3d> points_tri, std::vector<Point3d> points_
                 if(zbuffer[px][py]<=pz){
                     TGAColor color; 
                     
-                    float pu = 0, pv =0, pw=0;
+                    float pu = 0, pv =0;
                  
                         
                     
                     pu=points_text[0].get_x()*bc_screen.get_x()+points_text[1].get_x()*bc_screen.get_y()+points_text[2].get_x()*bc_screen.get_z();
-                    pv=points_text[0].get_y()*bc_screen.get_x()+points_text[1].get_y()*bc_screen.get_y()+points_text[2].get_y()*bc_screen.get_z();
-                    pw=points_text[0].get_z()*bc_screen.get_x()+points_text[1].get_z()*bc_screen.get_y()+points_text[2].get_z()*bc_screen.get_z();
+                    pv=points_text[0].get_y()*bc_screen.get_x()+points_text[1].get_y()*bc_screen.get_y()+points_text[2].get_y()*bc_screen.get_z(); 
                     
                     
                     

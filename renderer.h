@@ -11,7 +11,7 @@
 #include "tgaimage.h"
 
  
-#define SIZE 2048
+#define SIZE 1024
 #define DEPTH 255
 
 struct IShader {
@@ -45,7 +45,7 @@ Matrix lookat(Point3d eye, Point3d up);
 
 void printTriangle(Object &obj, TGAImage &img, bool shading, Point3d eye);
  
-void init();
+void init(Point3d light_dir);
 
 void rasterize(Point2d p0, Point2d p1, TGAImage &img,const TGAColor &c, int ybuffer[]);
 
