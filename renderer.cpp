@@ -9,7 +9,7 @@
 #include "renderer.h"
 
 
-Point3d light(0,0,-1);
+Point3d light(1,-1,-3);
 
 struct GouraudShader : public IShader { 
 
@@ -17,25 +17,33 @@ struct GouraudShader : public IShader {
         return (ViewPort*id*ModelView*mat).toP3D(); 
     }
 
-    virtual bool fragment(std::vector<Point3d> points_vn, Point3d bc_screen, TGAColor &color) {  
+    virtual bool fragment(std::vector<Point3d> points_vn, Point3d bc_screen, TGAColor &color) {   
+        
         
         float pul, pvl, pwl;
         light.normalize();
-                    
+        
+        Point3d light2(2*light.get_x(),2*light.get_y(),2*light.get_z());
          
         pul=points_vn[0].get_x()*bc_screen.get_x()+points_vn[1].get_x()*bc_screen.get_y()+points_vn[2].get_x()*bc_screen.get_z();
         pvl=points_vn[0].get_y()*bc_screen.get_x()+points_vn[1].get_y()*bc_screen.get_y()+points_vn[2].get_y()*bc_screen.get_z();
         pwl=points_vn[0].get_z()*bc_screen.get_x()+points_vn[1].get_z()*bc_screen.get_y()+points_vn[2].get_z()*bc_screen.get_z();
                     
+        
                     
-        Point3d poin(pul,pvl,pwl); 
-                     
-         float intensity = -light.dotproduct(poin);
-                      
-        color.r = color.r*intensity;
-        color.g = color.g *intensity;
-        color.b = color.b*intensity;
-        return intensity<=0;                               
+        Point3d n(pul,pvl,pwl); 
+         float intensity = -light.dotproduct(n);
+        
+        Point3d r = n.cross((n.cross(light2)));
+        r.minus( light);
+        r.normalize();   // reflected light
+        float spec = pow(std::max(r.get_z(), 0.0f), 0);
+        float diff = std::max(0.f, -n.dotproduct(light));
+         
+        color.r = std::min<float>(5 + color.r*(diff + .3*spec), 255);
+        color.g =std::min<float>(5 + color.g*(diff + .3*spec), 255);
+        color.b =std::min<float>(5 + color.b*(diff + .3*spec), 255);
+        return false;                               
     }
 };
 
