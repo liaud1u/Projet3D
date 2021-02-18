@@ -38,7 +38,6 @@ void printLine(Object &obj, TGAImage &img, const TGAColor &c);
 
 void traceTriangle(std::vector<Point3d> points_tri, std::vector<Point3d> points_text,std::vector<Point3d>  points_vn,TGAImage &img,  double * zbuffer[], Object &obj, IShader &shader);
 
-
 Matrix viewport(int x, int y, int w, int h);
 
 Matrix lookat(Point3d eye, Point3d up);

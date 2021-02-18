@@ -35,19 +35,16 @@ Matrix Matrix::operator*( Matrix& a) {
 
 Matrix Matrix::fromP3D(Point3d p){
     Matrix mat(4,1);
-    
     mat[0][0]=p.get_x();
     mat[1][0]=p.get_y();
     mat[2][0]=p.get_z();
     mat[3][0]=1;
-    
     
     return mat;
 } 
 
 Point3d Matrix::toP3D(){
     Point3d res(0,0,0);
-    
     if(r>=4 && c>=1){
         res.set_x(m[0][0]/m[3][0]);
         res.set_y(m[1][0]/m[3][0]);

@@ -18,7 +18,9 @@ public:
       
      
     static Matrix identity(int dimensions);
+    
     std::vector<float>& operator[](const int i);
+    
     Matrix operator*( Matrix& a);
 
     static Matrix fromP3D(Point3d p); 

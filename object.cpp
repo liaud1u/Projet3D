@@ -23,7 +23,6 @@ Object::Object(const char *filename, const char *texture_path, const char *tan_p
 		std::cerr << "L'objet n'existe pas " << filename << "\n";
 		in.close();
 	}else{
-        std::cout << "Objet chargé avec succès \n";
         
         std::string line ="";
         

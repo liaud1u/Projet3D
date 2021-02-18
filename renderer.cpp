@@ -10,6 +10,8 @@
 
 
 Point3d light;
+double ** zbuffer = new double*[SIZE];
+
 
 struct GouraudShader : public IShader { 
 
@@ -18,17 +20,11 @@ struct GouraudShader : public IShader {
     }
 
     virtual bool fragment(std::vector<Point3d> points_vn, Point3d bc_screen, TGAColor &color, Point3d norm) {   
-        
-        
-        
         light.normalize();
         
         Point3d light2(2*light.get_x(),2*light.get_y(),2*light.get_z());
           
         Point3d n = norm; 
-                    
-        //std::cout << n.get_x() << " " << n.get_y() << " " << n.get_z() << "\n";
-         
         
         Point3d r = n.cross((n.cross(light2)));
         r.minus( light);
@@ -36,22 +32,15 @@ struct GouraudShader : public IShader {
         float spec = pow(std::max(r.get_z(), 0.0f), 0);
         float diff = std::max(0.f, -n.dotproduct(light));
          
-       color.r = std::min<float>(5 + color.r*(diff + .3*spec), 255);
-       color.g =std::min<float>(5 + color.g*(diff + .3*spec), 255);
-       color.b =std::min<float>(5 + color.b*(diff + .3*spec), 255);
+        color.r = std::min<float>(5 + color.r*(diff + .3*spec), 255);
+        color.g =std::min<float>(5 + color.g*(diff + .3*spec), 255);
+        color.b =std::min<float>(5 + color.b*(diff + .3*spec), 255);
         
-          
- 
         return false;                     
     }
 };
-
- double ** zbuffer = new double*[SIZE];
  
- void init(Point3d light_dir){
-      
-    
-    
+void init(Point3d light_dir){
     light = Point3d(-light_dir.get_x(),-light_dir.get_y(), -light_dir.get_z()); 
     
     for(int i = 0; i<SIZE; i++){
@@ -104,21 +93,17 @@ void line(Point2d p0, Point2d p1, TGAImage &image, TGAColor color){
 line(p0.get_x(), p0.get_y(), p1.get_x(), p1.get_y(), image, color);
 }
 
-
 void printPoint2d(Object &obj, TGAImage &img, const TGAColor &c){
     for(Point3d p : obj.get_points()){
         img.set(SIZE/2+SIZE/2*p.get_x(),SIZE/2+p.get_y()*SIZE/2,c); 
     }
 }
 
-
 Point3d barycentric(std::vector<Point3d> &pts, Point2d P){
     Point3d p1(pts[2].get_x()-pts[0].get_x(), pts[1].get_x()-pts[0].get_x(),pts[0].get_x()-P.get_x());
     Point3d p2(pts[2].get_y()-pts[0].get_y(), pts[1].get_y()-pts[0].get_y(),pts[0].get_y()-P.get_y());
     
     Point3d u = p1.cross(p2);
-    
-    //if(std::abs(u.get_z()<1)) return Point3d(1,1,1);
     
     return Point3d(1.f-(u.get_x()+u.get_y())/u.get_z(), u.get_y()/u.get_z(), u.get_x()/u.get_z());
 } 
@@ -235,8 +220,6 @@ void printTriangle(Object &obj, TGAImage &img, bool shading, Point3d eye){
     std::vector<std::vector<int>> faces = obj.get_faces();
     std::vector<std::vector<int>> faces_text = obj.get_texture_faces();
     std::vector<std::vector<int>> faces_vn = obj.get_vn_faces();
-     
-   
     
     int fcpt = 0;
     
@@ -280,10 +263,7 @@ void printTriangle(Object &obj, TGAImage &img, bool shading, Point3d eye){
         
         fcpt++;
         
-        
-           
-         
-            traceTriangle(points_screen,points_text,points_vn,img,zbuffer,obj, shader);
+        traceTriangle(points_screen,points_text,points_vn,img,zbuffer,obj, shader);
         
     } 
 }
