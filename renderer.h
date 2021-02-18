@@ -17,7 +17,7 @@
 struct IShader {
     virtual ~IShader(){};
     virtual Point3d vertex(Matrix mat, Matrix id, Matrix ViewPort, Matrix ModelView) = 0;
-    virtual bool fragment(  std::vector<Point3d> points_vn, Point3d bc_screen, TGAColor &color) = 0;
+    virtual bool fragment(  std::vector<Point3d> points_vn, Point3d bc_screen, TGAColor &color, Point3d norm) = 0;
 };
 
 float max(float x, float y);

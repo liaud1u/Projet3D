@@ -18,12 +18,11 @@ int main(int argc, char** argv) {
 
 	TGAImage image(SIZE, SIZE, TGAImage::RGB);
     
-	image.flip_vertically(); // Origin at the left bottom corner
     init();
      
-    Object   eyes_in("./ressources/african_head/african_head_eye_inner.obj","./ressources/african_head/african_head_eye_inner_diffuse.tga");
-    Object   eyes_out("./ressources/african_head/african_head_eye_outer.obj","./ressources/african_head/african_head_eye_outer_diffuse.tga");
-    Object   head("./ressources/african_head/african_head.obj","./ressources/african_head/african_head_diffuse.tga");
+    Object   eyes_in("./ressources/african_head/african_head_eye_inner.obj","./ressources/african_head/african_head_eye_inner_diffuse.tga","./ressources/african_head/african_head_eye_inner_nm_tangent.tga");
+    Object   eyes_out("./ressources/african_head/african_head_eye_outer.obj","./ressources/african_head/african_head_eye_outer_diffuse.tga","./ressources/african_head/african_head_eye_outer_nm_tangent.tga");
+    Object   head("./ressources/african_head/african_head.obj","./ressources/african_head/african_head_diffuse.tga","./ressources/african_head/african_head_nm_tangent.tga");
     
     printTriangle(eyes_in,image,true,eye);
     //printTriangle(eyes_out,image,true,eye);
@@ -38,7 +37,7 @@ int main(int argc, char** argv) {
     init();
     
     
-    Object diablo("./ressources/diablo3_pose/diablo3_pose.obj","./ressources/diablo3_pose/diablo3_pose_diffuse.tga");
+    Object diablo("./ressources/diablo3_pose/diablo3_pose.obj","./ressources/diablo3_pose/diablo3_pose_diffuse.tga","./ressources/diablo3_pose/diablo3_pose_nm_tangent.tga");
     
     printTriangle(diablo,image,true,eye);
     
@@ -51,19 +50,20 @@ int main(int argc, char** argv) {
     image.clear();
     init();
     
-    Object eyes("./ressources/boggie/eyes.obj","./ressources/boggie/eyes_diffuse.tga");
-    Object headb("./ressources/boggie/head.obj","./ressources/boggie/head_diffuse.tga");
-    Object body("./ressources/boggie/body.obj","./ressources/boggie/body_diffuse.tga");
+    Object eyes("./ressources/boggie/eyes.obj","./ressources/boggie/eyes_diffuse.tga","./ressources/boggie/eyes_nm_tangent.tga");
+    Object headb("./ressources/boggie/head.obj","./ressources/boggie/head_diffuse.tga","./ressources/boggie/head_nm_tangent.tga");
+    Object body("./ressources/boggie/body.obj","./ressources/boggie/body_diffuse.tga","./ressources/boggie/body_nm_tangent.tga");
             
     printTriangle(headb,image,true,eye);
     printTriangle(eyes,image,true,eye);
     printTriangle(body,image,true,eye);
-    
+     
     image.flip_vertically();
     image.flip_horizontally();
      
     //Save image
 	image.write_tga_file("boggie_output_triangle.tga"); 
+     
      
     
 	return 0;

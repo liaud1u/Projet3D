@@ -17,10 +17,11 @@ struct GouraudShader : public IShader {
         return (ViewPort*id*ModelView*mat).toP3D(); 
     }
 
-    virtual bool fragment(std::vector<Point3d> points_vn, Point3d bc_screen, TGAColor &color) {   
+    virtual bool fragment(std::vector<Point3d> points_vn, Point3d bc_screen, TGAColor &color, Point3d norm) {   
         
-        
+       
         float pul, pvl, pwl;
+        
         light.normalize();
         
         Point3d light2(2*light.get_x(),2*light.get_y(),2*light.get_z());
@@ -28,10 +29,13 @@ struct GouraudShader : public IShader {
         pul=points_vn[0].get_x()*bc_screen.get_x()+points_vn[1].get_x()*bc_screen.get_y()+points_vn[2].get_x()*bc_screen.get_z();
         pvl=points_vn[0].get_y()*bc_screen.get_x()+points_vn[1].get_y()*bc_screen.get_y()+points_vn[2].get_y()*bc_screen.get_z();
         pwl=points_vn[0].get_z()*bc_screen.get_x()+points_vn[1].get_z()*bc_screen.get_y()+points_vn[2].get_z()*bc_screen.get_z();
-                    
         
                     
-        Point3d n(pul,pvl,pwl); 
+        Point3d n(pul,pvl,pwl);  
+        n = norm; 
+                    
+        //std::cout << n.get_x() << " " << n.get_y() << " " << n.get_z() << "\n";
+        
          float intensity = -light.dotproduct(n);
         
         Point3d r = n.cross((n.cross(light2)));
@@ -40,10 +44,13 @@ struct GouraudShader : public IShader {
         float spec = pow(std::max(r.get_z(), 0.0f), 0);
         float diff = std::max(0.f, -n.dotproduct(light));
          
-        color.r = std::min<float>(5 + color.r*(diff + .3*spec), 255);
-        color.g =std::min<float>(5 + color.g*(diff + .3*spec), 255);
-        color.b =std::min<float>(5 + color.b*(diff + .3*spec), 255);
-        return false;                               
+       color.r = std::min<float>(5 + color.r*(diff + .3*spec), 255);
+       color.g =std::min<float>(5 + color.g*(diff + .3*spec), 255);
+       color.b =std::min<float>(5 + color.b*(diff + .3*spec), 255);
+        
+          
+ 
+        return false;                     
     }
 };
 
@@ -180,7 +187,7 @@ void traceTriangle(std::vector<Point3d> points_tri, std::vector<Point3d> points_
                     
                     
                   color = obj.get_color(Point2d(pu,pv),1);
-                    bool discard =  shader.fragment(points_vn, bc_screen, color);
+                    bool discard =  shader.fragment(points_vn, bc_screen, color, obj.get_uv(Point2d(pu,pv)));
                     
                     
                     if(!discard){

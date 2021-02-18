@@ -10,10 +10,12 @@
 
 Object::Object(){}
 
-Object::Object(const char *filename, const char *texture_path) : path(filename), texture_path(texture_path){ 
+Object::Object(const char *filename, const char *texture_path, const char *tan_path) : path(filename), texture_path(texture_path), tan_path(tan_path){ 
 
     texture.read_tga_file(texture_path); 
     texture.flip_vertically();  
+    vn_tan.read_tga_file(tan_path); 
+    vn_tan.flip_vertically();  
     
     std::ifstream in;
 	in.open (filename, std::ios::binary);
@@ -106,4 +108,16 @@ TGAColor Object::get_color(Point2d point, float light_intensity){
     return c;
 }
     
+    
+Point3d Object::get_uv(Point2d point ){; 
+    TGAColor c = vn_tan.get((point.get_x()*(texture.get_width())),(point.get_y()*(texture.get_height()))); 
+    float x =(float)c.r/255.f*2.f - 1.f; 
+    float y =(float)c.g/255.f*2.f - 1.f; 
+    float z =(float)c.b/255.f*2.f - 1.f; 
+     
+    Point3d res(x,y,z);
+    res.normalize();
+    
+    return res;
+}
 

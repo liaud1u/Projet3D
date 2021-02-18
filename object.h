@@ -12,6 +12,7 @@ class Object {
 protected:
     const char* path;
     const char* texture_path;
+    const char* tan_path;
     std::vector<Point3d> points;
     std::vector<std::vector<int>> faces;
     std::vector<std::vector<int>> textures_faces;
@@ -19,12 +20,14 @@ protected:
     std::vector<Point3d> vn_coord;
     std::vector<Point3d> texture_coord;
     TGAImage texture;
+    TGAImage vn_tan;
+    
     
 public:
     
     Object();
     
-	Object(const char *filename, const char *texture_path);
+	Object(const char *filename, const char *texture_path, const char *tan_path);
 
     std::vector<std::vector<int>> get_faces(){return faces;}
     
@@ -41,6 +44,8 @@ public:
     TGAColor get_color(Point2d point, float light_intensity);
     
     TGAImage get_texture(){return texture;};
+    
+    Point3d get_uv(Point2d point );
     
 };
 
