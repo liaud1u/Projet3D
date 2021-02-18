@@ -9,7 +9,7 @@
 #include "renderer.h"
 
 
-Point3d light(1,-1,-3);
+Point3d light(-1,-1,-3);
 
 struct GouraudShader : public IShader { 
 

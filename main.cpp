@@ -11,7 +11,7 @@ const TGAColor red   = TGAColor(255, 0,   0,   255);
 const TGAColor green   = TGAColor(0, 255,   0,   255);
 const TGAColor blue   = TGAColor(0, 0,   255,   255);
   
-Point3d eye(-1,1,3);
+Point3d eye(1,1,3);
   
 
 int main(int argc, char** argv) {
@@ -29,6 +29,7 @@ int main(int argc, char** argv) {
     //printTriangle(eyes_out,image,true,eye);
     printTriangle(head,image,true,eye);
     image.flip_vertically();
+    image.flip_horizontally();
      
     //Save image
 	image.write_tga_file("head_output_triangle.tga"); 
@@ -42,6 +43,7 @@ int main(int argc, char** argv) {
     printTriangle(diablo,image,true,eye);
     
     image.flip_vertically();
+    image.flip_horizontally();
      
     //Save image
 	image.write_tga_file("diablo_output_triangle.tga"); 
@@ -58,6 +60,7 @@ int main(int argc, char** argv) {
     printTriangle(body,image,true,eye);
     
     image.flip_vertically();
+    image.flip_horizontally();
      
     //Save image
 	image.write_tga_file("boggie_output_triangle.tga"); 
