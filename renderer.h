@@ -14,6 +14,12 @@
 #define SIZE 2048
 #define DEPTH 255
 
+struct IShader {
+    virtual ~IShader(){};
+    virtual Point3d vertex(Matrix mat, Matrix id, Matrix ViewPort, Matrix ModelView) = 0;
+    virtual bool fragment(  std::vector<Point3d> points_vn, Point3d bc_screen, TGAColor &color) = 0;
+};
+
 float max(float x, float y);
 
 float min(float x, float y);
@@ -30,7 +36,7 @@ Point3d barycentric(std::vector<Point3d> &pts, Point2d P);
 
 void printLine(Object &obj, TGAImage &img, const TGAColor &c);
 
-void traceTriangle(std::vector<Point3d> points_tri, std::vector<Point3d> points_text,std::vector<Point3d>  points_vn,TGAImage &img,  double * zbuffer[], Object &obj);
+void traceTriangle(std::vector<Point3d> points_tri, std::vector<Point3d> points_text,std::vector<Point3d>  points_vn,TGAImage &img,  double * zbuffer[], Object &obj, IShader &shader);
 
 
 Matrix viewport(int x, int y, int w, int h);

@@ -15,6 +15,7 @@ Point3d eye(-1,1,3);
   
 
 int main(int argc, char** argv) {
+
 	TGAImage image(SIZE, SIZE, TGAImage::RGB);
     
 	image.flip_vertically(); // Origin at the left bottom corner

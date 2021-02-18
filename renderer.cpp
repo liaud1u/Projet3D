@@ -11,6 +11,34 @@
 
 Point3d light(0,0,-1);
 
+struct GouraudShader : public IShader { 
+
+    virtual Point3d vertex(Matrix mat, Matrix id, Matrix ViewPort, Matrix ModelView) { 
+        return (ViewPort*id*ModelView*mat).toP3D(); 
+    }
+
+    virtual bool fragment(std::vector<Point3d> points_vn, Point3d bc_screen, TGAColor &color) {  
+        
+        float pul, pvl, pwl;
+        light.normalize();
+                    
+         
+        pul=points_vn[0].get_x()*bc_screen.get_x()+points_vn[1].get_x()*bc_screen.get_y()+points_vn[2].get_x()*bc_screen.get_z();
+        pvl=points_vn[0].get_y()*bc_screen.get_x()+points_vn[1].get_y()*bc_screen.get_y()+points_vn[2].get_y()*bc_screen.get_z();
+        pwl=points_vn[0].get_z()*bc_screen.get_x()+points_vn[1].get_z()*bc_screen.get_y()+points_vn[2].get_z()*bc_screen.get_z();
+                    
+                    
+        Point3d poin(pul,pvl,pwl); 
+                     
+         float intensity = -light.dotproduct(poin);
+                      
+        color.r = color.r*intensity;
+        color.g = color.g *intensity;
+        color.b = color.b*intensity;
+        return intensity<=0;                               
+    }
+};
+
  double ** zbuffer = new double*[SIZE];
  
  void init(){
@@ -98,7 +126,7 @@ void printLine(Object &obj, TGAImage &img, const TGAColor &c){
 }
 
 
-void traceTriangle(std::vector<Point3d> points_tri, std::vector<Point3d> points_text,std::vector<Point3d>  points_vn,TGAImage &img, double * zbuffer[], Object &obj){
+void traceTriangle(std::vector<Point3d> points_tri, std::vector<Point3d> points_text,std::vector<Point3d>  points_vn,TGAImage &img, double * zbuffer[], Object &obj, IShader &shader){
         light.normalize();
     
         //Tri des points par y
@@ -123,6 +151,7 @@ void traceTriangle(std::vector<Point3d> points_tri, std::vector<Point3d> points_
         for(int px = boxmin.get_x(); px<=boxmax.get_x();px++){  
             for(int py = boxmin.get_y(); py<=boxmax.get_y();py++){
                 Point3d bc_screen = barycentric(points_tri,Point2d(px,py));
+                
                 if(bc_screen.get_x()<0 || bc_screen.get_y()<0 || bc_screen.get_z() < 0) continue;
                 
                 pz=points_tri[0].get_z()*bc_screen.get_x();
@@ -132,7 +161,7 @@ void traceTriangle(std::vector<Point3d> points_tri, std::vector<Point3d> points_
                 if(zbuffer[px][py]<=pz){
                     TGAColor color; 
                     
-                    float pu = 0, pv =0, pw=0,pul = 0, pvl =0, pwl=0;
+                    float pu = 0, pv =0, pw=0;
                  
                         
                     
@@ -141,20 +170,12 @@ void traceTriangle(std::vector<Point3d> points_tri, std::vector<Point3d> points_
                     pw=points_text[0].get_z()*bc_screen.get_x()+points_text[1].get_z()*bc_screen.get_y()+points_text[2].get_z()*bc_screen.get_z();
                     
                     
-                    pul=points_vn[0].get_x()*bc_screen.get_x()+points_vn[1].get_x()*bc_screen.get_y()+points_vn[2].get_x()*bc_screen.get_z();
-                    pvl=points_vn[0].get_y()*bc_screen.get_x()+points_vn[1].get_y()*bc_screen.get_y()+points_vn[2].get_y()*bc_screen.get_z();
-                    pwl=points_vn[0].get_z()*bc_screen.get_x()+points_vn[1].get_z()*bc_screen.get_y()+points_vn[2].get_z()*bc_screen.get_z();
+                    
+                  color = obj.get_color(Point2d(pu,pv),1);
+                    bool discard =  shader.fragment(points_vn, bc_screen, color);
                     
                     
-                    Point3d poin(pul,pvl,pwl); 
-                    
-                    
-                    float intensity = -poin.dotproduct(light);
-                      
-                    color= obj.get_color(Point2d(pu,pv),intensity);
-                    
-                    
-                    if(intensity>0){
+                    if(!discard){
                     
                     zbuffer[px][py] = pz;
                     img.set(px,py,color);
@@ -217,6 +238,8 @@ void printTriangle(Object &obj, TGAImage &img, bool shading, Point3d eye){
             
     id[3][2] = -1.f/(eye.minus(Point3d(0,0,0))).norm();
             
+    GouraudShader shader;
+    
     for(std::vector<int> triangle : faces){   
         std::vector<Point3d> points_vn; 
         std::vector<Point3d> points_text;
@@ -230,7 +253,7 @@ void printTriangle(Object &obj, TGAImage &img, bool shading, Point3d eye){
              
             Matrix mat = Matrix::fromP3D(p);
             
-            p=(ViewPort*id*ModelView*mat).toP3D();  
+            p=shader.vertex( mat,  id,  ViewPort,  ModelView);  
             
             
             points_screen.push_back(p);  
@@ -251,7 +274,7 @@ void printTriangle(Object &obj, TGAImage &img, bool shading, Point3d eye){
         
            
          
-            traceTriangle(points_screen,points_text,points_vn,img,zbuffer,obj);
+            traceTriangle(points_screen,points_text,points_vn,img,zbuffer,obj, shader);
         
     } 
 }
